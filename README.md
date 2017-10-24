@@ -20,18 +20,19 @@ Take a look at this minimal html, which also is included in the repository:
 ```
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<style>
-</style>
-<script type="text/javascript" src="../taskq.js" charset="UTF-8"></script>
-<script type="text/javascript" src="./test2.js" charset="UTF-8" async></script>
-<script type="text/javascript" src="./test0.js" charset="UTF-8" async></script>
-<script type="text/javascript" src="./test1.js" charset="UTF-8" async></script>
-</head>
-<body>
-<div class="row"></div>
-</body>
+	<head>
+		<meta charset="utf-8">
+		<style>
+		</style>
+	</head>
+	<script type="text/javascript" src="../taskq.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="./test2.js" charset="UTF-8" async></script>
+	<script type="text/javascript" src="./test0.js" charset="UTF-8" async></script>
+	<script type="text/javascript" src="./test1.js" charset="UTF-8" async></script>
+	</head>
+	<body>
+		<div class="row"></div>
+	</body>
 </html>
 ```
 
@@ -100,7 +101,7 @@ Then, in another function that executes after the above, the exported variable w
 		/*...some stuff with refToSomeObject...*/
 		/*...some stuff with a_primitive...*/
 	}
-	toBeExported._taskqId = "loadend";
+	currentFunction._taskqId = "loadend";
 	taskq.push(currentFunction);
 }()
 ```

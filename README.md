@@ -119,4 +119,4 @@ Eventually all pushed functions are executed at the 'load' event (by the interna
 
 If you want me to extend the capability to dynamically important scripts after the 'load' event, let me know.
 
-Check out the *[MINIMAL EXAMPLE](./example)* and also [THIS](https://medium.com/@ibowankenobi/queued-async-pseudo-modules-with-es5-812f99fed209) medium post. Also you can support me at my [PATREON](https://www.patreon.com/ibrahimTanyalcin) page.
+Check out the **[MINIMAL EXAMPLE](./example)** and also **[THIS](https://medium.com/@ibowankenobi/queued-async-pseudo-modules-with-es5-812f99fed209)** medium post. Also you can support me at my **[PATREON](https://www.patreon.com/ibrahimTanyalcin)** page.

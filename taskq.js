@@ -19,7 +19,7 @@
 				return this;
 			};
 			this.perform = function(){
-				var base = Math.max.apply(null,tasks.map(function(d,i){return (d._taskqWaitFor || []).length})) + 1,//About max 2^16 tasks
+				var base = Math.max.apply(null,tasks.map(function(d,i){return (d._taskqWaitFor || []).length;})) + 1,//About max 2^16 tasks
 					keywordStart = ["start","init","begin","loadstart","loadStart"],//regex could do also - executed first
 					keywordEnd = ["end","defer","finish","loadend","loadEnd"];//executed last
 				tasks.map(function(d,i){
@@ -38,7 +38,7 @@
 					} else if (!bL) {
 						return 1;
 					} else {
-						return aL.some(function(d,i){return d === bId})*base+aL.length - bL.some(function(d,i){return d === aId})*base - bL.length;
+						return aL.some(function(d,i){return d === bId;})*base+aL.length - bL.some(function(d,i){return d === aId;})*base - bL.length;
 					}
 				}).map(function(d,i){
 					return d[0];
@@ -51,7 +51,7 @@
 								captured[1]
 								.replace(/\s+/g,"")
 								.split(",")
-								.map(function(d,i){return exports[d]}) 
+								.map(function(d,i){return exports[d];}) 
 							:
 								void(0)
 						);
@@ -64,5 +64,5 @@
 		};
 	window.addEventListener("load",function(){
 		taskq.perform().flush();
-	},false)
-}()
+	},false);
+}();

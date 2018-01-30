@@ -23,37 +23,50 @@
 					keywordStart = ["start","init","begin","loadstart","loadStart"],//regex could do also - executed first
 					keywordEnd = ["end","defer","finish","loadend","loadEnd"];//executed last
 				tasks.map(function(d,i){
-					return [d,d._taskqId,d._taskqWaitFor];
+					return [d,d._taskqId];
 				}).sort(function(a,b){
 					var aId = a[1],
-						bId = b[1],
-						aL = a[2],
-						bL = b[2];
+						bId = b[1];
 					if (~keywordStart.indexOf(aId)) {
 						return ~keywordStart.indexOf(bId) ? 0 : -1;
 					} else if (~keywordEnd.indexOf(aId)) {
 						return ~keywordEnd.indexOf(bId) ? 0 : 1;
-					} else if (!aL) {
+					} else {
+						return 0;
+					}
+				}).map(function(d,i){
+					return [d[0],d[0]._taskqWaitFor];
+				}).sort(function(a,b){
+					var aL = a[1],
+						bL = b[1];
+					if (!aL) {
 						return !bL ? 0 : -1;
 					} else if (!bL) {
 						return 1;
 					} else {
-						return aL.some(function(d,i){return d === bId;})*base+aL.length - bL.some(function(d,i){return d === aId;})*base - bL.length;
+						return 0;
 					}
+				}).map(function(d,i){
+					return [d[0],d[0]._taskqId,d[1]];
+				}).sort(function(a,b){
+					var aId = a[1],
+						bId = b[1],
+						aL = a[2] || [],
+						bL = b[2] || [];
+					return aL.some(function(d,i){return d === bId;})*base+aL.length - bL.some(function(d,i){return d === aId;})*base - bL.length;
 				}).map(function(d,i){
 					return d[0];
 				}).forEach(function(d,i){
 					if(typeof d === "function") {
-						var captured = (/function\s*\w*\s*\(((?:\s*\w+\s*\,?\s*)+)\)\s*\{/).exec(d.toString());
+						var captured = (/function\s*\w*\s*\(((?:\s*\w+\s*\,?\s*)*)\)\s*\{/).exec(d.toString());
 						d.apply(
 							exports[d._taskqScope] || window,
-							captured ?
-								captured[1]
+							captured 
+							? captured[1]
 								.replace(/\s+/g,"")
 								.split(",")
 								.map(function(d,i){return exports[d];}) 
-							:
-								void(0)
+							: void(0)
 						);
 					} else {
 						console.log("not a function ref");

@@ -1,0 +1,34 @@
+{
+  "name": "@ibowankenobi/taskq",
+  "version": "2.0.1",
+  "description": "Module like task queuer for async scripts",
+  "main": "taskq.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "node tests/test.js",
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IbrahimTanyalcin/taskq.git"
+  },
+  "keywords": [
+    "ES5",
+    "promise",
+    "async",
+    "javascript",
+    "task",
+    "queue",
+    "requestAnimationFrame"
+  ],
+  "author": "Ibrahim Tanyalcin",
+  "license": "GPL",
+  "bugs": {
+    "url": "https://github.com/IbrahimTanyalcin/taskq/issues"
+  },
+  "homepage": "https://github.com/IbrahimTanyalcin/taskq#readme",
+  "devDependencies": {
+    "jsdoc": "^3.5.5"
+  }
+}

@@ -3,7 +3,7 @@
 <a href="https://www.patreon.com/ibrahimTanyalcin" title="Patreon donate"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate" /></a>
 <hr>
 
-Async modules with ES5
+Async modules with ES5 & ES6
 
 <hr>
 

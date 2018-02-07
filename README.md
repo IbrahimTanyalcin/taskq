@@ -44,6 +44,13 @@ A "global-name" attribute can be added to the main script which will then change
 <script type="text/javascript" src="../taskq.js" global-name="hmm" charset="UTF-8"></script>
 /*'hmm' refers to the taskq object*/
 ```
+If you want to control the speed of which the function executions take place, then use the "data-min-pause" attribute:
+
+```
+<script type="text/javascript" src="../taskq.js" data-min-pause="2000" charset="UTF-8"></script>
+/*'hmm' refers to the taskq object*/
+```
+Above snippet will execute pushed functions to taskq with an interval of 2000ms.
 
 Within each script you have the outermost clojure:
 

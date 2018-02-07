@@ -50,7 +50,11 @@ If you want to control the speed of which the function executions take place, th
 <script type="text/javascript" src="../taskq.js" data-min-pause="2000" charset="UTF-8"></script>
 /*'hmm' refers to the taskq object*/
 ```
-Above snippet will execute pushed functions to taskq with an interval of 2000ms.
+Above snippet will execute pushed functions to taskq with an interval of 2000ms. You can change the minimum pause value during runtime as well:
+
+```
+taskq.minPause = 1000; //1000ms pause between executions
+```
 
 Within each script you have the outermost clojure:
 

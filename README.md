@@ -1,6 +1,7 @@
 # taskq
 
 <a href="https://www.patreon.com/ibrahimTanyalcin" title="Patreon donate"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate" /></a>
+<a href="https://www.codacy.com/app/IbrahimTanyalcin/taskq?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=IbrahimTanyalcin/taskq&amp;utm_campaign=Badge_Grade" title="Codacy"><img src="https://api.codacy.com/project/badge/Grade/06f045df886848f09519df15388c8bf6" alt="Codacy Badge" /></a>
 <hr>
 
 Async modules with ES5 & ES6

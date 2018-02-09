@@ -1,6 +1,6 @@
 {
   "name": "@ibowankenobi/taskq",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Module like task queuer for async scripts",
   "main": "taskq.js",
   "directories": {

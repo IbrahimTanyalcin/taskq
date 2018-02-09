@@ -105,7 +105,7 @@
 					//console.log("using rAF");
 					return this.promise.promise = new this.__promise;
 				}
-			}
+			};
 			this.minPause = minPause;
 		}),
 		prt = taskq.constructor.prototype;

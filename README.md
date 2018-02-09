@@ -2,6 +2,8 @@
 
 <a href="https://www.patreon.com/ibrahimTanyalcin" title="Patreon donate"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate" /></a>
 <a href="https://www.codacy.com/app/IbrahimTanyalcin/taskq?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=IbrahimTanyalcin/taskq&amp;utm_campaign=Badge_Grade" title="Codacy"><img src="https://api.codacy.com/project/badge/Grade/06f045df886848f09519df15388c8bf6" alt="Codacy Badge" /></a>
+<a href="https://www.npmjs.com/package/@ibowankenobi/taskq" title="Npm"><img src="https://badge.fury.io/js/%40ibowankenobi%2Ftaskq.svg" alt="Npm Badge" /></a>
+<a href="https://zenodo.org/badge/latestdoi/108156384"><img src="https://zenodo.org/badge/108156384.svg" alt="DOI"></a>
 
 <hr>
 

@@ -1,5 +1,7 @@
 # taskq
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/06f045df886848f09519df15388c8bf6)](https://app.codacy.com/app/IbrahimTanyalcin/taskq?utm_source=github.com&utm_medium=referral&utm_content=IbrahimTanyalcin/taskq&utm_campaign=badger)
+
 <a href="https://www.patreon.com/ibrahimTanyalcin" title="Patreon donate"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate" /></a>
 <hr>
 

@@ -1,6 +1,5 @@
 (function (root,factory) {
-	if(typeof root.window === "object" || typeof root.document === "object" ) {
-	} else {
+	if(typeof root.window !== "object" && typeof root.document !== "object" ) {
 		var __f = function(){};
 		var __o = {};
 		root.window = {
@@ -14,7 +13,7 @@
 				head: __o,
 				body: __o
 			}
-		}
+		};
 	}
 	if (typeof define === "function" && define.amd) {
 		define(factory);
@@ -98,7 +97,7 @@
 			//If native Promise or polyfill available use that, otherwise fallback to rAF
 			this.promise = function(){
 				if (this.promise.promise) {
-					return this.promise.promise
+					return this.promise.promise;
 				} else if (window.Promise && Promise.constructor === Function) {
 					//console.log("using promise");
 					return this.promise.promise = Promise.resolve();

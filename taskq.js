@@ -326,13 +326,13 @@
 				}).map(function(d,i){
 					return d[0];
 				});
-		}
+		};
 		prt.__promise = function(){
 			this.then = function(f) {
 				window.requestAnimationFrame(f);
 				return this;
 			}
-		}
+		};
 		//execute the pushed & sorted functions one by one
 		prt.execute = function(sorted,exports,options){
 			//console.log("execute MAIN???");
@@ -385,7 +385,7 @@
 					}
 				});
 			});
-		}
+		};
 		//wait until minimum required delay to honor minPause, then resume execution
 		prt.wait = function(delay,sorted,exports,options) {
 			var that = this,
@@ -408,7 +408,7 @@
 					}
 				};
 			window.requestAnimationFrame(tick);
-		}
+		};
 		prt.load = function(src,container){
 			if(!this.scriptComplete) {
 				return this.queuePacker(src,container);
@@ -438,7 +438,7 @@
 				container.appendChild(script);
 			}
 			return thenable;
-		}
+		};
 	window.addEventListener("load",function(){
 		taskq.perform();
 	},false);

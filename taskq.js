@@ -23,6 +23,8 @@
 		factory(root,root.document);
     }
 }(this,function(window,document){
+	//version
+	var version = "2.1.4";
 	//a salt for getters/setters
 	var salt = Math.random();
 	//current script
@@ -96,9 +98,14 @@
 					}
 				}
 			);
+			/*taskq resonates between 3 stages. If taskq.onload is called,
+			scriptLoading is true and scriptComplete is false, once script is loaded, 
+			scriptLoading is false and scriptLoaded is true, once all pushed
+			functions execute and thens are consumed, scriptComplete is true*/
 			this.scriptLoading = false;
 			this.scriptLoaded = false;
 			this.scriptComplete = true;
+			/*clear main thread or the immediate thread*/
 			this.flush = function(origin){
 				if (origin === "main") {
 					tasks = [];
@@ -108,11 +115,14 @@
 				}
 				return this;
 			};
+			/*export variables with alias*/
 			this.export = function(f,name){
 				name = name || "default";
 				exports[name] = f;
 				return this;
 			};
+			/*if onload is encountered, push the immediateTasks,
+			otherwise push to main thread*/
 			this.push = function(f){
 				if(this.scriptLoading || this.scriptLoaded) {
 					//console.log("pushing this to immediate queue");
@@ -122,6 +132,7 @@
 				}
 				return this;
 			};
+			/*perform pushed functions*/
 			this.perform = function(){
 				this.execute(
 					this.sortTasks(tasks),
@@ -144,7 +155,11 @@
 					return this.promise.promise = new this.__promise;
 				}
 			};
+			/*set the minimum amount of time to pass between execution of
+			functions in the main thread*/
 			this.minPause = minPause;
+			/*taskq.load returns a thennable object,
+			for more refer to readme.md*/
 			this.thenable = function (that){
 				var queue = [],
 					_this = this,
@@ -197,9 +212,7 @@
 				this.then = function(f){
 					this.counter++;
 					queue.push(function(){
-						//console.log("Queue executes??");
 						that.promise().then(function(){
-							//console.log("Promise executes??");
 							f(_this.resolver);
 							if(!resolverIsInitiated) {
 								_this.counter--;
@@ -209,21 +222,26 @@
 					});
 					return this;
 				};
+				/*Starts executing the pushed functions within the
+				immediate tasks. Upon completion 'status.complete' will be set to
+				true and impender can start executing then clauses*/
 				this.execute = function(){
-					//console.log("execute???");
 					that.execute (
 						that.sortTasks(immediateTasks),
 						exports,
 						{
 							origin:"script",
-							status:/*this.status*/_this.status,
-							flush:/*false*/true
+							status:_this.status,
+							flush:true
 						}
 					);
 					return this;
 				};
+				/*When a thennable is created, its impender is immediately active,
+				once status is complete, it starts executing the then clauses. When
+				all then clauses are finished, the next dynamic load, if any is
+				processed*/
 				this.impender = function(){
-					//console.log("running!!");
 					if (!that.running) {
 						that.running = {hash:salt, value: true};
 					}
@@ -242,7 +260,6 @@
 							_catch();
 						}
 						if (scriptQueue.length) {
-							//console.log("Do I keep shifting???");
 							scriptQueue.shift()();
 						}
 						return;
@@ -263,11 +280,13 @@
 						_this.next = false;
 						queue.shift()();
 					}
-					//console.log(_this.next);
 					window.requestAnimationFrame(_this.impender);
 				};
 				this.impender();
 			};
+			/*If another load is encountered before current dynamic load
+			and its then clauses are processed, it is pushed to the 
+			scriptQueue*/
 			this.queuePacker = function(src,container){
 				var thens = [],
 					that = this;
@@ -283,6 +302,11 @@
 			};
 		}),
 		prt = taskq.constructor.prototype;
+		prt.version = function(){
+			return version;
+		};
+		/*This internally called method is either passed the tasks array or
+		the immediateTasks array. Sorts the passed array and returns a shallow copy*/
 		prt.sortTasks = function(tasks){
 			//About max 2^16 tasks
 				var base = Math.max.apply(null,tasks.map(function(d,i){return (d._taskqWaitFor || []).length;})) + 1,
@@ -327,6 +351,7 @@
 					return d[0];
 				});
 		};
+		/*requestAnimationFrame (rAF) is used instead of Promise wrapper in older browsers (ie9+)*/
 		prt.__promise = function(){
 			this.then = function(f) {
 				window.requestAnimationFrame(f);
@@ -335,8 +360,6 @@
 		};
 		//execute the pushed & sorted functions one by one
 		prt.execute = function(sorted,exports,options){
-			//console.log("execute MAIN???");
-			//console.log(options.origin);
 			if (!this.running) {
 				this.running = {hash:salt, value: true};
 			}
@@ -409,6 +432,7 @@
 				};
 			window.requestAnimationFrame(tick);
 		};
+		/*Load scripts asynchronously and keep DOM clean*/
 		prt.load = function(src,container){
 			if(!this.scriptComplete) {
 				return this.queuePacker(src,container);
@@ -422,13 +446,11 @@
 			this.scriptComplete = false;
 			script.async = true;
 			script.onload = function(){
-				//console.log("I fire too???");
 				that.scriptLoading = false;
 				that.scriptLoaded = true;
 				thenable.execute();
 			};
 			script.onerror = function(){
-				//console.log("I fire???");
 				thenable.errored = true;
 			};
 			script.src = src;

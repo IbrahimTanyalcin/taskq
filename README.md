@@ -1,5 +1,6 @@
 # taskq
 
+[![Build Status](https://travis-ci.org/IbrahimTanyalcin/taskq.svg?branch=master)](https://travis-ci.org/IbrahimTanyalcin/taskq)
 <a href="https://www.patreon.com/ibrahimTanyalcin" title="Patreon donate"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate" /></a>
 <a href="https://www.codacy.com/app/IbrahimTanyalcin/taskq?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=IbrahimTanyalcin/taskq&amp;utm_campaign=Badge_Grade" title="Codacy"><img src="https://api.codacy.com/project/badge/Grade/06f045df886848f09519df15388c8bf6" alt="Codacy Badge" /></a>
 <a href="https://www.npmjs.com/package/@ibowankenobi/taskq" title="Npm"><img src="https://badge.fury.io/js/%40ibowankenobi%2Ftaskq.svg" alt="Npm Badge" /></a>
@@ -28,8 +29,9 @@ If you want you can jump straight into the [**examples**](#examples-).
 - No polyfill required
 - No transpiling required.
 - No config file etc.
-- About 5kB when minimized
+- About 6kB when minimized
 - Will work on ie9+.
+- Will play nice with other technologies/patterns you use in your page
 - Non-render blocking
 - You can pause/resume the main thread
 - Aware of document state (hidden, minimized etc.)
@@ -61,7 +63,133 @@ If you want you can jump straight into the [**examples**](#examples-).
 
 ## API [⏎](#api)
 
-push,export,then,catch,load,pause,resume,paused,running,perform,flush,minPause,res.init,res(true/false)
+There are some terms used throught out the documentation:
+
+### Terms
+
+- **iief**: immediately invoked function expression
+- **main thread** : this refers to the list of functions pushed to the taskq object before calling *taskq.perform* method. This is called automatically on 'onload' event. Dynamically loaded scripts have their separete queue (immediateTasks) that is handled implicitly.
+- **dynamic import/dynamic load** : this is to refer whenever you call *taskq.load* method to start loading scripts somehere within main thread (or outside later if you want). Everything you load is async but their execution can be controlled by you.
+- **taskq**: this is the main taskq global object. Although you can change its name using the script attribute, its default is assumed here.
+- **module pattern**: Although taskq only requires you to push the functions to be executed, to avoid leaking to global, a general module pattern is as follows:
+
+```
+/*outer iief*/
+!function(){
+	function someFunctionYouWantToExecute (someArguments) {
+		/*some stuff like taskq.export, taskq.load*/
+	}
+	taskq.push(someFunctionYouWantToExecute);
+}()
+```
+
+### Methods
+
+> taskq.version()
+
+Returns the version string.
+
+> taskq.push(function)
+
+Pushes the function to the main thread or the immediate thread (for dynamic imports) implicitly and return taskq it self, so you can do:
+
+```
+//Define functions
+function f1(){...};
+f1._taskqId = "f1";
+function f2(){...};
+f2._taskqId = "f2";
+f2._taskqWaitFor = ["f1"];
+function f3(){...};
+f3._taskqId = "f3";
+f3._taskqWaitFor = ["f2"];
+//Push to queue
+taskq.push(f1).push(f2).push(f3);
+
+```
+Pushed functions do not execute automatically, you will have to call *taskq.perform()* to start shifting and executing it. In your main HTML, perform is automatically called for you on 'onload' event.
+
+If you push a variable that is not a function, it will be skipped and you will get a console message: "not a function ref".
+
+> taskq.export(variable,aliasString)
+
+Exports any type of variable with the given alias. These exported variables are available to the pushed functions. Suppose a *previouslyPushedFunction* in the main thread called *taskq.export({value:4},"someObject")*:
+
+```
+/*outer iief*/
+!function(){
+	function someFunctionYouWantToExecute (someObject) {
+		/*someObject is available here*/
+	}
+	someFunctionYouWantToExecute.taskqWaitFor = ["previouslyPushedFunction"];
+	taskq.push(someFunctionYouWantToExecute);
+}()
+```
+
+Arguments order does not matter. 
+
+Exported variables live until *taskq.perform* finishes executing all the functions in the main thread. If there are no more pointers somewhere else in your code, they can be garbage collected. Later you can repopulate the exports by calling *taskq.export* again. Next time you call perform, it will again clear and so on.
+
+> taskq.load("./someScript.js")
+
+Will pause the main thread, and start loading the given script. Its iief will be immediately executed and pushed functions will be added to the immediate queue to be executed. Returns a *thennable* object which you can attach then or catch clauses. 
+
+Other dynamic loads and the main thread will wait for this load to complete its iief, pushed functions and then/catch clauses.
+
+> thennable.then(function(resolver){...})
+
+Attaches the thennable a function to be executed, and return the thennable itself. Attached thens are executed in order. Functions within thens are passed an optional resolver argument. If you do not call *resolver.init;* , the next then clause will execute as soon as this then clause is executed. If you call *resolver.init;* , somewhere else within the current then clause you should call *resolver(true)* or *resolver(false)* to proceed to the next then. 
+
+When using resolver, the entire main thread and the rest of the then clauses will wait for it to resolve.
+
+> thennable.catch(function(){...})
+
+Attaches a catch clause to the thennable shall any of the thens resolve with a *falsey* value. Attaching multiple catch clauses overrides the previous one.
+
+> resolver.init
+
+Tells the current then clause to block rest of the thens and the main thread and wait until it is resolved.
+
+> resolver(variable)
+
+Converts the variable to "boolean" and resolves with that value. Returns always true unless you try to resolve more than once within the same then clause. You can only resolve once, resolving more than once does not have any effect -> only the first resolve value is recorded.
+
+> resolve.value
+
+Gives the boolean value the resolver resolved with. Cannot be set.
+
+> taskq.pause;
+
+Pauses the entire taskq main thread, thens etc. If any functions were called at the time pause was called such as pushed functions or setTimeout, they are executed and the rest is halted. When paused, taskq is still running but does not proceed.
+
+> taskq.paused;
+
+Returns true of false whether taskq is paused or not. Cannot be set manually.
+
+> taskq.resume;
+
+Resumes the taskq.
+
+> taskq.running;
+
+Returns true or false based on taskq running state. It will return false once the *taskq.perform()* method finished the main thread. If you start another main thread, it return true until perform completes again.
+
+> taskq.perform()
+
+Starts performing the pushed functions in the main thread. This is automatically called for you on the 'onload' event.
+
+Later if you start another main thread by pushing functions to taskq, you should manually call this method in the end. 
+
+Perform will automatically clear all the exports once it is complete.
+
+> taskq.flush("main"|"script")
+
+This is automatically called by the *taskq.perform* method in the end. You normally should not call this method manually. If you pass "main" as argument, then all the pushed functions to the main thread and the exported variables will be cleared. If you pass "script", only the immediate tasks (pushed functions within dynamic imports) are cleared.
+
+> taskq.minPause = Number
+
+You can use this *setter* to set the minimum time in milliseconds between the execution of pushed functions in the main thread. You can also configure this by adding an "data-min-pause" attribute to the script tag of taskq.
+
 
 ## Reading [⏎](#reading)
 
@@ -194,7 +322,7 @@ Eventually all pushed functions are executed at the 'load' event (by the interna
 
 If you want me to extend the capability to dynamically important scripts after the 'load' event, let me know.
 
-Check out the **[MINIMAL EXAMPLE](./example)** and also **[THIS](https://medium.com/@ibowankenobi/queued-async-pseudo-modules-with-es5-812f99fed209)** medium post. Also you can support me at my **[PATREON](https://www.patreon.com/ibrahimTanyalcin)** page.
+Check out the **[MINIMAL EXAMPLE](#example---2)** and also **[THIS](https://medium.com/@ibowankenobi/queued-async-pseudo-modules-with-es5-812f99fed209)** medium post. Also you can support me at my **[PATREON](https://www.patreon.com/ibrahimTanyalcin)** page.
 
 ## Examples [⏎](#examples)
 
@@ -214,6 +342,8 @@ The expected execution order of the scripts are:
 
 The execution order is controlled by attaching *_taskqId* (any javascript variable type) and *_taskqWaitFor* (array of '*taskqId*'s) properties to the *pushed* functions inside iiefs.
 
+Note that **the first 3 lines of console messages** in the below examples can vary as the iiefs can execute in any order due to the *async* attribute of the script tags.
+
 Although you should carefully examine all the scripts in each example, some important script for each example is highlighted, which is usually **'script1'**. 
 
 ### Example - 1
@@ -221,6 +351,8 @@ Although you should carefully examine all the scripts in each example, some impo
 This example has been explained in detail [**HERE**](https://medium.com/@ibowankenobi/queued-async-pseudo-modules-with-es5-812f99fed209).
 
 ### Example - 2
+
+> Summary: The main thread will wait for completion of any dynamically imported (loaded) scripts and their then clauses, and will resume afterwards.
 
 > script 1:
 
@@ -257,6 +389,8 @@ script2 executed
 As expected iiefs execute first. And then based on the *_taskqWaitFor* properties, script 0 --> script 1 --> script 2 is executed. But since script 1 dynamically imports another script, the main thread will wait for the dynamic import (and then handlers) and then resume for script 2.
 
 ### Example - 3
+
+> Summary: Everytime a function is pushed to the main thread, the main thread will wait for all dynamic loads within this function.
 
 > script 0 (similarly scripts 1 and 2):
 
@@ -297,6 +431,8 @@ dynamic script 2 'then' executed
 Here all the main scripts import a single dynamic module. And each time, the main thread will pause/resume once the dynamic import and its then handlers are executed. 
 
 ### Example - 4
+
+> Summary: The main thread will also wait for nested dynamic loads within a pushed function.
 
 > script 1:
 
@@ -361,6 +497,8 @@ So in case of the script 1, the 'scriptDynamic1' is loaded, then all the thens a
 After all the thens are executed, "scriptDynamic1_2.js" gets loaded and its then handlers execute. After all these layers are done within script1, main thread continues with script 2.
 
 ### Example - 5
+
+> Summary: Within a dynamically loaded module/script, first the iief is executed, then its pushed function is executed, then all the then clauses are executed in order.
 
 > script 1:
 
@@ -448,6 +586,8 @@ So within the flow of script 1:
 
 ### Example - 6
 
+> Summary: Dynamicall loaded scripts/modules and main initial script tags share the same pattern: a function wrapped inside iief where it is ultimately pushed to the taskq by the iief. However, dynamically loaded modules do not push the functions to the main thread, but to a separate 'immediate' thread. This is done implicitly.
+
 > scriptDynamic1.js:
 
 ```
@@ -494,7 +634,7 @@ dynamic script 2 'then' executed
 
 > explanation:
 
-The difference between this example and [example 5]() is dynamically imported functions also push another function to the queue. 
+The difference between this example and [example 5](#example---5) is dynamically imported functions also push another function to the queue. 
 
 When dynamically loading scripts, note that the pushed functions execute before the then clauses as shown in the console messages.
 
@@ -505,6 +645,8 @@ Dynamically loaded scripts do not push functions into the queue of the main thre
 - While you are loading, you cannot control the iief, but since the pushed function has access to the exported variables, you can decide to execute or not execute this function based on some exported variables.
 
 ### Example - 7
+
+> Summary: Any pushed function in the main thread or dynamically loaded script can export a variable. These variables are accessible to all the functions. The life cycle of these exported variables are till the end of the main thread, where they are ultimately flushed automatically.
 
 > scriptDynamic2.js: 
 
@@ -566,9 +708,11 @@ In this case, script 2 dynamically loads another script that reads these variabl
 
 ### Example - 8
 
-This is identical to [example 1]() with the addition of dynamically loaded scripts. It demonstrates how nested loads (dynamically loaded script loading another one) are handled.
+This is identical to [example 1](#example---1) with the addition of dynamically loaded scripts. It demonstrates how nested loads (dynamically loaded script loading another one) are handled.
 
 ### Example - 9
+
+> Summary: The then clauses gets passed a resolver argument. Thens are executed immediately unless you call *res.init*. You can later resolve it within the then clause by *res(true|false)*. You cannot resolve it twice, to check the value, use *res.value*. Resolving with falsey value will result in the next then clauses to be skipped and execution of a catch clause, if any. 
 
 > script1.js:
 
@@ -645,6 +789,8 @@ In this particular case first then clause within 'script1.js' is executed. The n
 
 ### Example - 10
 
+> Summary: Then clauses will wait for each others *res* to resolve before they execute. This is also true for dynamically loaded scripts and their then clauses. The main thread will wait for all of these nested clauses to complete and resolve before continuing.
+
 > script1.js:
 
 ```
@@ -712,11 +858,13 @@ dynamic script 2 'then' executed
 
 > explanation:
 
-This is similar to [example 9](). The difference is that the first then clause dynamically imports another script 'scriptDynamic1_1.js' within the setTimeout before it resolves.
+This is similar to [example 9](#example---9). The difference is that the first then clause dynamically imports another script 'scriptDynamic1_1.js' within the setTimeout before it resolves.
 
 The 3 first layer then clauses are executed in order, within the first then clause the loading of 'scriptDynamic1_1.js' is added to the script queue. Once the first layer 3 then clauses are executed, 'scriptDynamic1_1.js' executes. The (second layer) then clause of 'scriptDynamic1_1.js' resolves in about 5 seconds. After that, the main thread continues with script2.
 
 ### Example - 11
+
+> Summary: When a then clause resolves with a *falsey* value, its remaining then clauses are skipped and the **latest attached** catch clause is executed. 
 
 > script1.js:
 
@@ -797,7 +945,7 @@ dynamic script 2 'then' executed
 
 > explanation:
 
-This is almost identical to [example 10]() with the addition of second then clause resolving with a *falsey* value. The same then clause also exports a boolean variable called 'status'.
+This is almost identical to [example 10](#example---10) with the addition of second then clause resolving with a *falsey* value. The same then clause also exports a boolean variable called 'status'.
 
  Due resolving with false at second then clause, the rest of the then clauses do not execute. If any catch handler attached, it executes which in this case logged: "This is the catch function attached!".
 
@@ -806,6 +954,8 @@ This is almost identical to [example 10]() with the addition of second then clau
  After the then clause of "./scriptDynamic1_1.js" is executed, the main thread continues from script2.
 
  ### Example - 12
+
+> Summary: Then clauses can only be resolved with a boolean value. To share return values or other variables between then clauses or other functions, use the *taskq.export* method. Exporting a variable with the same alias overwrites it.
 
  > scriptDynamic0.js:
 
@@ -920,7 +1070,7 @@ dynamic script 2 'then' executed
 
 > explanation:
 
-This is very similar to [example 11]() with an addition of passing then clause parameters about the previous pushed function.
+This is very similar to [example 11](#example---11) with an addition of passing then clause parameters about the previous pushed function.
 
 In example 11, you might wonder is there any way for the then clause of "./scriptDynamic1_1.js" to react to what has been returned or done within the pushed function (open "./scriptDynamic1_1.js" and look for the function named "conditional", this was the pushed function).
 

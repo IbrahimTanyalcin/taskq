@@ -7,7 +7,8 @@
     "example": "example"
   },
   "scripts": {
-    "test": "node tests/test.js"
+    "test": "node tests/test.js",
+	"min": "./node_modules/.bin/uglifyjs taskq.js -c -m -o ./taskq.min.js"
   },
   "repository": {
     "type": "git",

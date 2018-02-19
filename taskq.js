@@ -148,7 +148,7 @@
 			this.thenable = function (that){
 				var queue = [],
 					_this = this,
-					resolverValue = undefined;
+					resolverValue = undefined,
 					resolverIsFrozen = false,
 					resolverIsInitiated = false,
 					_catch = function(){};
@@ -245,7 +245,7 @@
 							//console.log("Do I keep shifting???");
 							scriptQueue.shift()();
 						}
-						return
+						return;
 					}
 					if ( 
 						!_paused 
@@ -272,14 +272,14 @@
 				var thens = [],
 					that = this;
 				scriptQueue.push(function(){
-					thens.forEach(function(d,i){this.then(d)},that.load(src,container));
+					thens.forEach(function(d,i){this.then(d);},that.load(src,container));
 				});
 				return new function(){
 					this.then = function(f){
 						thens.push(f);
 						return this;
 					};
-				}
+				};
 			};
 		}),
 		prt = taskq.constructor.prototype;

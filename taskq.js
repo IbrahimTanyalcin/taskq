@@ -331,7 +331,7 @@
 			this.then = function(f) {
 				window.requestAnimationFrame(f);
 				return this;
-			}
+			};
 		};
 		//execute the pushed & sorted functions one by one
 		prt.execute = function(sorted,exports,options){

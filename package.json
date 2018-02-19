@@ -1,6 +1,6 @@
 {
   "name": "@ibowankenobi/taskq",
-  "version": "2.0.7",
+  "version": "2.1.3",
   "description": "Module like task queuer for async scripts",
   "main": "taskq.js",
   "directories": {
@@ -15,13 +15,21 @@
   },
   "keywords": [
     "ES5",
-	"ES6",
+    "ES6",
     "promise",
+	"Promise",
     "async",
     "javascript",
     "task",
     "queue",
-    "requestAnimationFrame"
+    "requestAnimationFrame",
+	"d3",
+    "js",
+    "biojs",
+    "bionode",
+	"pause",
+	"resume",
+	"module"
   ],
   "author": "Ibrahim Tanyalcin",
   "license": "LGPL-3.0",
@@ -30,6 +38,7 @@
   },
   "homepage": "https://github.com/IbrahimTanyalcin/taskq#readme",
   "devDependencies": {
-    "jsdoc": "^3.5.5"
+    "jsdoc": "^3.5.5",
+    "uglify-js": "^3.3.11"
   }
 }

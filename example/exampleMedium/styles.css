@@ -1,0 +1,93 @@
+html {
+	font-size:16px;
+	font-family:Helvetica, Arial, "sans-serif";
+	color:DimGray;
+	cursor:pointer;
+}
+html * {
+	box-sizing:border-box;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+div.row {
+	position:absolute;
+	width:50%;
+	height:50%;
+	top:0;
+	left:0;
+	bottom:0;
+	right:0;
+	margin:auto;
+	text-align:center;
+	font-size:1rem;
+	line-height:200%;
+	border: 20px solid DimGray;
+	background-color:DimGray;
+	border-radius:10px;
+}
+div.sideCar {
+	font-size:0.75rem;
+	padding: 20px;
+	position:absolute;
+	top:0;
+	left:0;
+	width:20%;
+	height:100%;
+	overflow-y:auto;
+}
+div.sideCar > div {
+	margin-bottom:20px;
+}
+div.buttons {
+	padding: 20px;
+	position:absolute;
+	top:80%;
+	left:30%;
+	width:40%;
+	height:20%;
+	text-align:center;
+}
+div.buttons > div {
+	margin:0px 20px 0px 20px;
+	background-color: Orange;
+	border: 0px solid transparent;
+	border-radius:5px;
+	min-width:35%;
+	display:inline-block;
+	padding:10px;
+	transition: background-color 1s ease;
+}
+div.buttons > div:hover {
+	background-color: OrangeRed;
+}
+div.point {
+	position:absolute;
+	width:6px;
+	height:6px;
+	border-radius:100%;
+	transform:translate(-50%,-50%);
+	background-color: Orange;
+	box-shadow:0px 0px 30px 30px Orange;
+	transition: box-shadow 1.5s ease;
+}
+.github-corner:hover .octo-arm{
+	animation:octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave{
+	0%,100% {
+		transform:rotate(0)
+	}
+	20%,60% {
+		transform:rotate(-25deg)
+	}
+	40%,80% {
+		transform:rotate(10deg)
+	}
+}
+@media (max-width:500px){
+	.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{
+		animation:octocat-wave 560ms ease-in-out
+	}
+}

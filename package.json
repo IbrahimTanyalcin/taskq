@@ -1,6 +1,6 @@
 {
   "name": "@ibowankenobi/taskq",
-  "version": "2.1.4",
+  "version": "2.2.0",
   "description": "Module like task queuer for async scripts",
   "main": "taskq.js",
   "directories": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node tests/test.js",
-	"min": "./node_modules/.bin/uglifyjs taskq.js -c -m -o ./taskq.min.js"
+    "min": "./node_modules/.bin/uglifyjs taskq.js -c -m -o ./taskq.min.js"
   },
   "repository": {
     "type": "git",
@@ -18,19 +18,19 @@
     "ES5",
     "ES6",
     "promise",
-	"Promise",
+    "Promise",
     "async",
     "javascript",
     "task",
     "queue",
     "requestAnimationFrame",
-	"d3",
+    "d3",
     "js",
     "biojs",
     "bionode",
-	"pause",
-	"resume",
-	"module"
+    "pause",
+    "resume",
+    "module"
   ],
   "author": "Ibrahim Tanyalcin",
   "license": "LGPL-3.0",

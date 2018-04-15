@@ -21,6 +21,7 @@ If you want you can jump straight into the [**examples**](#examples-).
 - ## [Reading](#reading-)
 - ## [What does it do?](#what-does-it-do-)
 - ## [Usage](#usage-)
+- ## [Changelog](#changelog-)
 - ## [Examples](#examples-)
 
 ## Advantages [⏎](#advantages)
@@ -195,11 +196,13 @@ You can use this *setter* to set the minimum time in milliseconds between the ex
 
 I advise you to take a look at below Medium posts:
 - [**Part 1**](https://medium.com/@ibowankenobi/queued-async-pseudo-modules-with-es5-812f99fed209)
-- [**Part 2**]()
+- [**Part 2**](https://medium.com/@ibowankenobi/pausing-resuming-browser-app-logic-using-taskq-js-884ec5a8ce86)
 
 ## What does it do? [⏎](#what-does-it-do)
 
-This project has evolved to the degree that is now a full blown module system that can be used instead of ES6 import/export or other module proposals.
+This project has evolved to the degree that is now a full blown module system that can be used instead of ES6 import/export or other module proposals. Perhaps it can be better illustrated in answer I have written in Hashnode:
+
+> ### [Modules in JavaScript confusion](https://hashnode.com/post/modules-in-javascript-confusion-cjfc32m6f000a0as2os9nhf75)
 
 ~~I was playing around with the idea of writing a module pattern for ES5, well not like a full-blown module definition but
 a mini script to execute async scripts with clojures. So this will allow you to add async script tags and execute them with order 
@@ -323,6 +326,12 @@ Eventually all pushed functions are executed at the 'load' event (by the interna
 If you want me to extend the capability to dynamically important scripts after the 'load' event, let me know.
 
 Check out the **[MINIMAL EXAMPLE](#example---2)** and also **[THIS](https://medium.com/@ibowankenobi/queued-async-pseudo-modules-with-es5-812f99fed209)** medium post. Also you can support me at my **[PATREON](https://www.patreon.com/ibrahimTanyalcin)** page.
+
+## Changelog [⏎](#changelog)
+
+#### v 2.2.0
+- Updated the sorting function to behave stable in Chrome. Now you also get the amount it has taken in milliseconds to sort the tasks.
+
 
 ## Examples [⏎](#examples)
 

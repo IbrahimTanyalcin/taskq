@@ -319,9 +319,9 @@
 						bL = b[2] || prt.emptyArr,
 						a0 = a[0],
 						b0 = b[0],
-						aKSC = a0._taskqKSC === undefined ? a0._taskqKSC = !!!~keywordStart.indexOf(aId) : a0._taskqKSC,
+						aKSC = a0._taskqKSC === undefined ? a0._taskqKSC = !~keywordStart.indexOf(aId) : a0._taskqKSC,
 						aKEC = a0._taskqKEC === undefined ? a0._taskqKEC = !!~keywordEnd.indexOf(aId) : a0._taskqKEC,
-						bKSC =  b0._taskqKSC === undefined ? b0._taskqKSC = !!!~keywordStart.indexOf(bId) : b0._taskqKSC,
+						bKSC =  b0._taskqKSC === undefined ? b0._taskqKSC = !~keywordStart.indexOf(bId) : b0._taskqKSC,
 						bKEC = b0._taskqKEC === undefined ? b0._taskqKEC = !!~keywordEnd.indexOf(bId) : b0._taskqKEC,
 						aC = aKSC && (aKEC || aL.some(function(d,i){return d === bId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(bId));})),
 						bC = bKSC && (bKEC || bL.some(function(d,i){return d === aId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(aId));}));
@@ -351,7 +351,7 @@
 				i<length;
 				++i,a = tasks[i],aId = a && a._taskqId,aL = a && (a._taskqWaitFor || prt.emptyArr)
 			){
-				aKSC = a._taskqKSC === undefined ? a._taskqKSC = !!!~keywordStart.indexOf(aId) : a._taskqKSC;
+				aKSC = a._taskqKSC === undefined ? a._taskqKSC = !~keywordStart.indexOf(aId) : a._taskqKSC;
 				aKEC = a._taskqKEC === undefined ? a._taskqKEC = !!~keywordEnd.indexOf(aId) : a._taskqKEC;
 				
 				inner:
@@ -359,7 +359,7 @@
 					var b = tasks[j],
 						bId = b._taskqId,
 						bL = b._taskqWaitFor || prt.emptyArr,
-						bKSC =  b._taskqKSC === undefined ? b._taskqKSC = !!!~keywordStart.indexOf(bId) : b._taskqKSC,
+						bKSC =  b._taskqKSC === undefined ? b._taskqKSC = !~keywordStart.indexOf(bId) : b._taskqKSC,
 						bKEC = b._taskqKEC === undefined ? b._taskqKEC = !!~keywordEnd.indexOf(bId) : b._taskqKEC,
 						aC = aKSC && (aKEC || aL.some(function(d,i){return d === bId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(bId));})),
 						bC = bKSC && (bKEC || bL.some(function(d,i){return d === aId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(aId));}));
@@ -373,7 +373,7 @@
 						--i;
 						break inner;
 					}
-				};
+				}
 			};
 			
 			report ? console.log("Semi stable sorting done in: "+ steps + " steps, ~" +(Date.now()-start)+"ms") : void(0);

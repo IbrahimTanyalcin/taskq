@@ -135,7 +135,7 @@
 			/*perform pushed functions*/
 			this.perform = function(){
 				this.execute(
-					this.sortTasks(tasks),
+					this.sortTasks(tasks,true),
 					exports,
 					{
 						origin:"main"
@@ -227,7 +227,7 @@
 				true and impender can start executing then clauses*/
 				this.execute = function(){
 					that.execute (
-						that.sortTasks(immediateTasks),
+						immediateTasks.length && that.sortTasks(immediateTasks),
 						exports,
 						{
 							origin:"script",
@@ -302,54 +302,83 @@
 			};
 		}),
 		prt = taskq.constructor.prototype;
+		prt.emptyArr = [];
 		prt.version = function(){
 			return version;
 		};
 		/*This internally called method is either passed the tasks array or
 		the immediateTasks array. Sorts the passed array and returns a shallow copy*/
-		prt.sortTasks = function(tasks){
-			//About max 2^16 tasks
-				var base = Math.max.apply(null,tasks.map(function(d,i){return (d._taskqWaitFor || []).length;})) + 1,
-					//regex could do also - executed first
-					keywordStart = ["start","init","begin","loadstart","loadStart"],
-					//executed last
-					keywordEnd = ["end","defer","finish","loadend","loadEnd"];
-				//series of schwartzian transforms for sorting
+		prt.sortTasksUnstable = function(tasks,base,keywordStart,keywordEnd,tasksMap){
+				//series of schwartzian transform(s) for sorting, KSC = keywordStartCoefficient, KEC = keywordEndCoefficient
 				return tasks.map(function(d,i){
-					return [d,d._taskqId];
-				}).sort(function(a,b){
-					var aId = a[1],
-						bId = b[1];
-					if (~keywordStart.indexOf(aId)) {
-						return ~keywordStart.indexOf(bId) ? 0 : -1;
-					} else if (~keywordEnd.indexOf(aId)) {
-						return ~keywordEnd.indexOf(bId) ? 0 : 1;
-					} else {
-						return 0;
-					}
-				}).map(function(d,i){
-					return [d[0],d[0]._taskqWaitFor];
-				}).sort(function(a,b){
-					var aL = a[1],
-						bL = b[1];
-					if (!aL) {
-						return !bL ? 0 : -1;
-					} else if (!bL) {
-						return 1;
-					} else {
-						return 0;
-					}
-				}).map(function(d,i){
-					return [d[0],d[0]._taskqId,d[1]];
+					return [d,d._taskqId,d._taskqWaitFor];
 				}).sort(function(a,b){
 					var aId = a[1],
 						bId = b[1],
-						aL = a[2] || [],
-						bL = b[2] || [];
-					return aL.some(function(d,i){return d === bId;})*base+aL.length - bL.some(function(d,i){return d === aId;})*base - bL.length;
+						aL = a[2] || prt.emptyArr,
+						bL = b[2] || prt.emptyArr,
+						a0 = a[0],
+						b0 = b[0],
+						aKSC = a0._taskqKSC === undefined ? a0._taskqKSC = !!!~keywordStart.indexOf(aId) : a0._taskqKSC,
+						aKEC = a0._taskqKEC === undefined ? a0._taskqKEC = !!~keywordEnd.indexOf(aId) : a0._taskqKEC,
+						bKSC =  b0._taskqKSC === undefined ? b0._taskqKSC = !!!~keywordStart.indexOf(bId) : b0._taskqKSC,
+						bKEC = b0._taskqKEC === undefined ? b0._taskqKEC = !!~keywordEnd.indexOf(bId) : b0._taskqKEC,
+						aC = aKSC && (aKEC || aL.some(function(d,i){return d === bId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(bId));})),
+						bC = bKSC && (bKEC || bL.some(function(d,i){return d === aId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(aId));}));
+					return aC*base+aL.length - bC*base - bL.length;
 				}).map(function(d,i){
 					return d[0];
 				});
+		};
+		prt.sortTasks = function(tasks,report){
+			var start = Date.now(),
+				steps = 1,
+				length = tasks.length,
+				//About max 2^16 tasks
+				base = Math.max.apply(null,tasks.map(function(d,i){return (d._taskqWaitFor || prt.emptyArr).length;})) + 1,
+				//regex could do also - executed first
+				keywordStart = ["start","init","begin","loadstart","loadStart"],
+				//keywordEnd = ["end","defer","finish","loadend","loadEnd"];
+				keywordEnd = ["end","defer","finish","loadend","loadEnd"],
+				//reverse Map, id to function
+				tasksMap = tasks.reduce(function(ac,d,i,a){d._taskqId && (ac[d._taskqId] = d); return ac;},{});
+			tasks = this.sortTasksUnstable(tasks,base,keywordStart,keywordEnd,tasksMap);
+			
+			//chrome sort uses quicksort for  arrays of length > 10, I use windows of 9 to force stable sort.
+			outer:
+			for(
+				var i = 0,a = tasks[i],aId = a._taskqId,aL = a._taskqWaitFor || prt.emptyArr,aKSC,aKEC;
+				i<length;
+				++i,a = tasks[i],aId = a && a._taskqId,aL = a && (a._taskqWaitFor || prt.emptyArr)
+			){
+				aKSC = a._taskqKSC === undefined ? a._taskqKSC = !!!~keywordStart.indexOf(aId) : a._taskqKSC;
+				aKEC = a._taskqKEC === undefined ? a._taskqKEC = !!~keywordEnd.indexOf(aId) : a._taskqKEC;
+				
+				inner:
+				for(var j = i+1;j<length;++j) {
+					var b = tasks[j],
+						bId = b._taskqId,
+						bL = b._taskqWaitFor || prt.emptyArr,
+						bKSC =  b._taskqKSC === undefined ? b._taskqKSC = !!!~keywordStart.indexOf(bId) : b._taskqKSC,
+						bKEC = b._taskqKEC === undefined ? b._taskqKEC = !!~keywordEnd.indexOf(bId) : b._taskqKEC,
+						aC = aKSC && (aKEC || aL.some(function(d,i){return d === bId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(bId));})),
+						bC = bKSC && (bKEC || bL.some(function(d,i){return d === aId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(aId));}));
+					if (aC*base+aL.length - bC*base - bL.length > 0) {
+						tasks[i] = b;
+						tasks[j] = a;
+						var windowStart = Math.max(0,j-8);
+						var windowEnd = Math.min(length,Math.max(0,j-8)+9);
+						tasks = (tasks.slice(0,windowStart).concat(this.sortTasksUnstable(tasks.slice(windowStart,windowEnd),base,keywordStart,keywordEnd,tasksMap)).concat(tasks.slice(windowEnd)));
+						++steps;
+						--i;
+						break inner;
+					}
+				};
+			};
+			
+			report ? console.log("Semi stable sorting done in: "+ steps + " steps, ~" +(Date.now()-start)+"ms") : void(0);
+			//console.log(tasks.slice());
+			return tasks;
 		};
 		/*requestAnimationFrame (rAF) is used instead of Promise wrapper in older browsers (ie9+)*/
 		prt.__promise = function(){

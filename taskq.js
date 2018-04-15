@@ -24,7 +24,7 @@
     }
 }(this,function(window,document){
 	//version
-	var version = "2.1.4";
+	var version = "2.2.2";
 	//a salt for getters/setters
 	var salt = Math.random();
 	//current script
@@ -374,7 +374,7 @@
 						break inner;
 					}
 				}
-			};
+			}
 			
 			report ? console.log("Semi stable sorting done in: "+ steps + " steps, ~" +(Date.now()-start)+"ms") : void(0);
 			//console.log(tasks.slice());

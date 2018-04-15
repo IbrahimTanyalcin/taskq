@@ -45,5 +45,11 @@ Temporary Items
 #Older versions
 older/
 
+#older minified
+older_min/
+
 #node modules
 node_modules/
+
+#TODO
+TODO/

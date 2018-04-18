@@ -195,8 +195,9 @@ You can use this *setter* to set the minimum time in milliseconds between the ex
 ## Reading [⏎](#reading)
 
 I advise you to take a look at below Medium posts:
-- [**Part 1**](https://medium.com/@ibowankenobi/queued-async-pseudo-modules-with-es5-812f99fed209)
-- [**Part 2**](https://medium.com/@ibowankenobi/pausing-resuming-browser-app-logic-using-taskq-js-884ec5a8ce86)
+- [**Queued Async (pseudo-) modules with ES5**](https://medium.com/@ibowankenobi/queued-async-pseudo-modules-with-es5-812f99fed209)
+- [**Pausing/resuming browser & app logic using Taskq.js**](https://medium.com/@ibowankenobi/pausing-resuming-browser-app-logic-using-taskq-js-884ec5a8ce86)
+- [**Get that google PSI score higher**](https://medium.com/@ibowankenobi/get-that-google-psi-score-higher-28a7c992966e)
 
 ## What does it do? [⏎](#what-does-it-do)
 

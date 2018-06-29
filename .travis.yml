@@ -9,7 +9,7 @@ before_install:
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 install:
   - mkdir travis-phantomjs
-  - wget https://github.com/ariya/phantomjs/archive/2.1.3.tar.gz -O $PWD/travis-phantomjs/phantomjs-2.1.3.tar.gz
+  - wget https://deogen2.mutaframe.com/phantomjs/2.1.3.tar.gz -O $PWD/travis-phantomjs/phantomjs-2.1.3.tar.gz
   - tar -xvf $PWD/travis-phantomjs/phantomjs-2.1.3.tar.gz -C $PWD/travis-phantomjs
   - export PATH=$PWD/travis-phantomjs:$PATH
 script: 

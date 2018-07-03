@@ -1,5 +1,5 @@
 ---
-title: 'Async Modules Supporting ES5 &amp; ES6 with Control Flow'
+title: 'Async Modules Supporting ES5 and ES6 with Control Flow'
 tags:
  - ES5
  - ES6

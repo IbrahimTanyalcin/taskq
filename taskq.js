@@ -24,7 +24,7 @@
     }
 }(this,function(window,document){
 	//version
-	var version = "2.2.3";
+	var version = "2.3.0";
 	//a salt for getters/setters
 	var salt = Math.random();
 	//current script
@@ -325,7 +325,7 @@
 						bKEC = b0._taskqKEC === undefined ? b0._taskqKEC = !!~keywordEnd.indexOf(bId) : b0._taskqKEC,
 						aC = aKSC && (aKEC || aL.some(function(d,i){return d === bId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(bId));})),
 						bC = bKSC && (bKEC || bL.some(function(d,i){return d === aId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(aId));}));
-					return aC*base+aL.length - bC*base - bL.length;
+					return aC*base + aL.length - bC*base - bL.length;
 				}).map(function(d,i){
 					return d[0];
 				});
@@ -363,7 +363,7 @@
 						bKEC = b._taskqKEC === undefined ? b._taskqKEC = !!~keywordEnd.indexOf(bId) : b._taskqKEC,
 						aC = aKSC && (aKEC || aL.some(function(d,i){return d === bId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(bId));})),
 						bC = bKSC && (bKEC || bL.some(function(d,i){return d === aId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(aId));}));
-					if (aC*base+aL.length - bC*base - bL.length > 0) {
+					if (!this.areCircular(a,b,tasksMap) && (aC*base + this.dependencyIsSubset(a,b,tasksMap)*aL.length - bC*base - bL.length > 0)) {
 						tasks[i] = b;
 						tasks[j] = a;
 						var windowStart = Math.max(0,j-8);
@@ -373,11 +373,12 @@
 						--i;
 						break inner;
 					}
-				}
-			}
+				};
+			};
 			
 			report ? console.log("Semi stable sorting done in: "+ steps + " steps, ~" +(Date.now()-start)+"ms") : void(0);
 			//console.log(tasks.slice());
+			this.clearDependencyLedger(tasks);
 			return tasks;
 		};
 		/*requestAnimationFrame (rAF) is used instead of Promise wrapper in older browsers (ie9+)*/
@@ -489,6 +490,116 @@
 				container.appendChild(script);
 			}
 			return thenable;
+		};
+		prt.dependencyIsSubset = function(a,b,tasksMap,checked){
+			a._taskqDependencyIsSubset = a._taskqDependencyIsSubset || [];
+			a._taskqDependencyIsNotSubset = a._taskqDependencyIsNotSubset || [];
+			if(~a._taskqDependencyIsSubset.indexOf(b)) {
+				return true;
+			} else if (~a._taskqDependencyIsNotSubset.indexOf(b)) {
+				return false;
+			}
+			var checked = checked || [],
+				aL = a._taskqWaitFor || prt.emptyArr,
+				bL = b._taskqWaitFor || prt.emptyArr;
+			if(!aL.length){
+				a._taskqDependencyIsNotSubset.push(b);
+				return false;
+			} else if (!bL.length) {
+				a._taskqDependencyIsNotSubset.push(b);
+				checked.push(b);
+				return false;
+			} else if (~checked.indexOf(b)) {
+				return;
+			} else if (!aL.map(function(d,i){return bL.indexOf(d)}).some(function(d,i){return !~d})) {
+				a._taskqDependencyIsSubset.push(b);
+				checked.push(b);
+				return true;
+			} else {
+				var result = bL.map(function(d,i){
+					return tasksMap[d] && this.dependencyIsSubset(a,tasksMap[d],tasksMap,checked);
+				},this).some(function(d,i){
+					return d === true;
+				});
+				if (result) {
+					a._taskqDependencyIsSubset.push(b);
+				} else {
+					a._taskqDependencyIsNotSubset.push(b);
+				}
+				return result;
+			}
+		};
+		prt.dependsOn = function(a,b,tasksMap,checked){
+			a._taskqDependsOn = a._taskqDependsOn || [];
+			a._taskqNotDependsOn = a._taskqNotDependsOn || [];
+			if(~a._taskqDependsOn.indexOf(b)) {
+				return true;
+			} else if (~a._taskqNotDependsOn.indexOf(b)) {
+				return false;
+			}
+			var aL = a._taskqWaitFor || prt.emptyArr;
+			if(checked === undefined && (checked = []) && !aL.length) {
+				a._taskqNotDependsOn.push(b);
+				//checked.push(b);
+				return false;
+			} else if (~checked.indexOf(b)) {
+				return;
+			} else if (~aL.map(function(d,i){return tasksMap[d]}).indexOf(b)) {
+				a._taskqDependsOn.push(b);
+				checked.push(b);
+				return true;
+			} else {
+				var result = aL.map(function(d,i){
+					return tasksMap[d] && this.dependsOn(tasksMap[d],b,tasksMap,checked)
+				},this).some(function(d,i){
+					return d === true;
+				});
+				if (result) {
+					a._taskqDependsOn.push(b);
+				} else {
+					a._taskqNotDependsOn.push(b);
+				}
+				return result;
+			}
+		};
+		prt.areCircular = function(a,b,tasksMap) {
+			a._taskqCircular = a._taskqCircular || [];
+			a._taskqNotCircular = a._taskqNotCircular || [];
+			b._taskqCircular = b._taskqCircular || [];
+			b._taskqNotCircular = b._taskqNotCircular || [];
+			if (~a._taskqCircular.indexOf(b)){
+				return true;
+			} else if (~a._taskqNotCircular.indexOf(b)) {
+				return false;
+			}
+			var result = this.dependsOn(a,b,tasksMap) && this.dependsOn(b,a,tasksMap);
+			if (result) {
+				a._taskqCircular.push(b);
+				b._taskqCircular.push(a);
+				console.log(
+					"Circular dependency detected, consider revising "
+					+ (a._taskqId || a.toString().slice(0,30))
+					+ " and "
+					+ (b._taskqId || b.toString().slice(0,30))
+				);
+			} else {
+				a._taskqNotCircular.push(b);
+				b._taskqNotCircular.push(a);
+			}
+			return result;
+		};
+		prt.clearDependencyLedger = function(tasks){
+			var that = this;
+			tasks.forEach(function(d,i){
+				that.deleteEnum(d,this);
+			},["_taskqDependencyIsSubset","_taskqDependencyIsNotSubset","_taskqDependsOn","_taskqNotDependsOn","_taskqCircular","_taskqNotCircular"]);
+			return this;
+		};
+		prt.deleteEnum = function(obj,propArr){
+			obj && typeof obj === "object" && propArr instanceof Array && propArr.forEach(function(d,i){
+				delete obj[d];
+			});
+			return this;
 		};
 	window.addEventListener("load",function(){
 		taskq.perform();

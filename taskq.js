@@ -24,7 +24,7 @@
     }
 }(this,function(window,document){
 	//version
-	var version = "2.3.0";
+	var version = "2.3.1";
 	//a salt for getters/setters
 	var salt = Math.random();
 	//current script
@@ -373,7 +373,7 @@
 						--i;
 						break inner;
 					}
-				};
+				}
 			};
 			
 			report ? console.log("Semi stable sorting done in: "+ steps + " steps, ~" +(Date.now()-start)+"ms") : void(0);
@@ -511,7 +511,7 @@
 				return false;
 			} else if (~checked.indexOf(b)) {
 				return;
-			} else if (!aL.map(function(d,i){return bL.indexOf(d)}).some(function(d,i){return !~d})) {
+			} else if (!aL.map(function(d,i){return bL.indexOf(d);}).some(function(d,i){return !~d;})) {
 				a._taskqDependencyIsSubset.push(b);
 				checked.push(b);
 				return true;
@@ -544,7 +544,7 @@
 				return false;
 			} else if (~checked.indexOf(b)) {
 				return;
-			} else if (~aL.map(function(d,i){return tasksMap[d]}).indexOf(b)) {
+			} else if (~aL.map(function(d,i){return tasksMap[d];}).indexOf(b)) {
 				a._taskqDependsOn.push(b);
 				checked.push(b);
 				return true;

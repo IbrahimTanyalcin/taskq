@@ -10,6 +10,9 @@
 
 # Async Modules Supporting ES5 & ES6 with Control Flow
 
+## ⇩ First, your 1 min cheatsheet ⇩
+![cheatsheet](./cheatsheet.png)
+
 <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Detail_der_Rechenmaschine_von_Johann_Helfrich_M%C3%BCller.jpg" width="100%"></img>
 
 # Navigation

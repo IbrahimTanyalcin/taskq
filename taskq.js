@@ -24,7 +24,7 @@
     }
 }(this,function(window,document){
 	//version
-	var version = "2.3.3";
+	var version = "2.3.4";
 	//a salt for getters/setters
 	var salt = Math.random();
 	//current script

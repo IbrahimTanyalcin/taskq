@@ -24,7 +24,7 @@
     }
 }(this,function(window,document){
 	//version
-	var version = "2.3.1";
+	var version = "2.3.2";
 	//a salt for getters/setters
 	var salt = Math.random();
 	//current script
@@ -374,7 +374,7 @@
 						break inner;
 					}
 				}
-			};
+			}
 			
 			report ? console.log("Semi stable sorting done in: "+ steps + " steps, ~" +(Date.now()-start)+"ms") : void(0);
 			//console.log(tasks.slice());
@@ -517,7 +517,7 @@
 				return true;
 			} else {
 				var result = bL.map(function(d,i){
-					return tasksMap[d] && this.dependencyIsSubset(a,tasksMap[d],tasksMap,checked);
+					return tasksMap[d] && !this.areCircular(b,tasksMap[d],tasksMap) && this.dependencyIsSubset(a,tasksMap[d],tasksMap,checked);
 				},this).some(function(d,i){
 					return d === true;
 				});
@@ -550,7 +550,7 @@
 				return true;
 			} else {
 				var result = aL.map(function(d,i){
-					return tasksMap[d] && this.dependsOn(tasksMap[d],b,tasksMap,checked)
+					return tasksMap[d] && !this.areCircular(a,tasksMap[d],tasksMap) && this.dependsOn(tasksMap[d],b,tasksMap,checked);
 				},this).some(function(d,i){
 					return d === true;
 				});

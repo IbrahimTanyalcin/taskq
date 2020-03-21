@@ -24,7 +24,7 @@
     }
 }(this,function(window,document){
 	//version
-	var version = "2.3.5";
+	var version = "2.3.6";
 	//a salt for getters/setters
 	var salt = Math.random();
 	//current script
@@ -32,6 +32,8 @@
 		name = (oScript && oScript.getAttribute("global-name")) || "taskq",
 		//the minimum desired pause between pushed function execution
 		minPause = (oScript && +oScript.getAttribute("data-min-pause")) || 0,
+		backSteps = (oScript && +oScript.getAttribute("data-backsteps")) || 3,
+		stepLimit = (oScript && +oScript.getAttribute("data-step-limit")) || 100,
 		taskq = (window[name] = new function (){
 			//internal variables to keep track of pushed functions and exports
 			var tasks = [],
@@ -351,6 +353,10 @@
 				i<length;
 				++i,a = tasks[i],aId = a && a._taskqId,aL = a && (a._taskqWaitFor || prt.emptyArr)
 			){
+				if(steps > stepLimit) {
+					console.log("Max step limit of " + stepLimit + " step(s) has been reached. Terminating sort.");
+					break outer;
+				}
 				aKSC = a._taskqKSC === undefined ? a._taskqKSC = !~keywordStart.indexOf(aId) : a._taskqKSC;
 				aKEC = a._taskqKEC === undefined ? a._taskqKEC = !!~keywordEnd.indexOf(aId) : a._taskqKEC;
 				
@@ -370,7 +376,8 @@
 						var windowEnd = Math.min(length,Math.max(0,j-8)+9);
 						tasks = (tasks.slice(0,windowStart).concat(this.sortTasksUnstable(tasks.slice(windowStart,windowEnd),base,keywordStart,keywordEnd,tasksMap)).concat(tasks.slice(windowEnd)));
 						++steps;
-						--i;
+						//--i;
+						i = Math.max(0,(i -= backSteps));
 						break inner;
 					}
 				}

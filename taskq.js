@@ -325,8 +325,8 @@
 						aKEC = a0._taskqKEC === undefined ? a0._taskqKEC = !!~keywordEnd.indexOf(aId) : a0._taskqKEC,
 						bKSC =  b0._taskqKSC === undefined ? b0._taskqKSC = !~keywordStart.indexOf(bId) : b0._taskqKSC,
 						bKEC = b0._taskqKEC === undefined ? b0._taskqKEC = !!~keywordEnd.indexOf(bId) : b0._taskqKEC,
-						aC = aKSC && (aKEC || aL.some(function(d,i){return d === bId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(bId));})),
-						bC = bKSC && (bKEC || bL.some(function(d,i){return d === aId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(aId));}));
+						aC = aKSC && (aKEC || aL.some(function(d,i){return d === bId || (tasksMap[d] && tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(bId));})),
+						bC = bKSC && (bKEC || bL.some(function(d,i){return d === aId || (tasksMap[d] && tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(aId));}));
 					return aC*base + aL.length - bC*base - bL.length;
 				}).map(function(d,i){
 					return d[0];
@@ -367,8 +367,8 @@
 						bL = b._taskqWaitFor || prt.emptyArr,
 						bKSC =  b._taskqKSC === undefined ? b._taskqKSC = !~keywordStart.indexOf(bId) : b._taskqKSC,
 						bKEC = b._taskqKEC === undefined ? b._taskqKEC = !!~keywordEnd.indexOf(bId) : b._taskqKEC,
-						aC = aKSC && (aKEC || aL.some(function(d,i){return d === bId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(bId));})),
-						bC = bKSC && (bKEC || bL.some(function(d,i){return d === aId || (tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(aId));}));
+						aC = aKSC && (aKEC || aL.some(function(d,i){return d === bId || (tasksMap[d] && tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(bId));})),
+						bC = bKSC && (bKEC || bL.some(function(d,i){return d === aId || (tasksMap[d] && tasksMap[d]._taskqWaitFor && ~tasksMap[d]._taskqWaitFor.indexOf(aId));}));
 					if (!this.areCircular(a,b,tasksMap) && (aC*base + this.dependencyIsSubset(a,b,tasksMap)*aL.length - bC*base - bL.length > 0)) {
 						tasks[i] = b;
 						tasks[j] = a;
